@@ -11,7 +11,7 @@ export const GameBoardStyle = styled.div`
   `}
 
   ${(props) => props.theme.media.mobile`
-    gap: 0.3rem;
-    padding: 0.5rem;
+    gap: 0.25rem;
+    padding: 0.25rem;
   `}
 `;

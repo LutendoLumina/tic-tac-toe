@@ -21,6 +21,11 @@ export const ModalContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+
+  ${(props) => props.theme.media.mobile`
+    min-width: 200px;
+    padding: 20px 10px;
+  `}
 `;
 
 export const ModalHeader = styled.div`

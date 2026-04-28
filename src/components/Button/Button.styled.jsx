@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 export const ButtonWrapper = styled.button`
   color: ${(props) => props.theme.colors.primary};
-  background-color: ${(props) => props.color ? props.color : props.theme.button.secondary};
+  background-color: ${(props) =>
+    props.color ? props.color : props.theme.button.secondary};
   padding: 20px 30px;
   min-weight: 300px;
   font-size: 1.5rem;
@@ -15,4 +16,9 @@ export const ButtonWrapper = styled.button`
     box-shadow: 0px 0px 10px ${(props) => props.theme.colors.secondary};
     cursor: pointer;
   }
+
+  ${(props) => props.theme.media.mobile`
+    min-width: 100px;
+      font-size: 0.9rem;
+  `}
 `;
