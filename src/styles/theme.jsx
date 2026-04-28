@@ -1,17 +1,12 @@
 import { css } from "styled-components";
 
 export const lightTheme = {
-  // Single color property (for your Container component)
-  colors: {
-    primary: "#ffffff",
-    secondary: "#f8f9fa",
-    tertiary: "#e9ecef",
-  },
+
 
   // Colors object (for your Title component and others)
   colors: {
-    primary: "#007bff",
-    secondary: "#6c757d",
+    primary: "#ffffff",
+    secondary: "#f8f9fa",
     success: "#28a745",
     danger: "#dc3545",
     warning: "#ffc107",
@@ -29,6 +24,15 @@ export const lightTheme = {
     primary: "#ffffff",
     secondary: "#f8f9fa",
     tertiary: "#e9ecef",
+  },
+
+  button : {
+    primary: "#1e1e1e",
+    secondary: "#2d2d2d",
+  },
+
+  cell: {
+    background: "#2d2d2d",
   },
 
   // Text Colors
@@ -142,17 +146,11 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  // Single color property
-  colors: {
-    primary: "#1e1e1e",
-    secondary: "#2d2d2d",
-    tertiary: "#3d3d3d",
-  },
 
   // Colors object
   colors: {
-    primary: "#0d6efd",
-    secondary: "#6c757d",
+    primary: "#1e1e1e",
+    secondary: "#2d2d2d",
     success: "#198754",
     danger: "#dc3545",
     warning: "#ffc107",
@@ -163,6 +161,10 @@ export const darkTheme = {
     text: "#f8f9fa",
     textSecondary: "#adb5bd",
     textLight: "#e9ecef",
+  },
+
+    cell: {
+    background: "#d9d9d9",
   },
 
   // Background Colors
@@ -177,6 +179,11 @@ export const darkTheme = {
     primary: "#f8f9fa",
     secondary: "#adb5bd",
     light: "#e9ecef",
+  },
+
+   button : {
+    primary: "#f8f9fa",
+    secondary: "#adb5bd",
   },
 
   // Border Colors

@@ -4,7 +4,7 @@ export const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  flex-direction: ${(props) => props.$columnBased ? "column" : "row"};
   height: 80vh;
   width: 100vw;
   background-color: ${(props) => props.theme.background.primary};
@@ -13,14 +13,14 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: ${(props) => props.theme.colors.text};
+  color: ${(props) => props.primary ? props.theme.colors.secondary : props.theme.colors.text};
   font-size: 3rem;
   font-family: "Pacifico", cursive;
   background-color: transparent;
 `;
 
 export const SubTitle = styled.h2`
-  color: ${(props) => props.theme.colors.text};
+  color: ${(props) => props.primary ? props.theme.colors.secondary : props.theme.colors.text};
   font-size: 1.5rem;
   font-family: "Poppins", sans-serif;
   font-weight: 200;

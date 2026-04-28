@@ -7,8 +7,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <Container>
-      <Title isDarkMode>TicTacToe</Title>
+    <Container $columnBased>
+      <Title $isDarkMode>TicTacToe</Title>
       <SubTitle>Play with your friends, higher score wins</SubTitle>
       <Button onClick={() => navigate("/game-on")}>Play Now</Button>
     </Container>
