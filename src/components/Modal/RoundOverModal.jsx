@@ -19,7 +19,9 @@ const RoundOverModal = () => {
     <>
       <ModalHeader>
         <Title $primary>
-          {game.roundWinner.name} Wins This Round
+          {game.roundWinner
+            ? `${game.roundWinner.name} Wins This Round`
+            : "Round drawn"}
         </Title>
       </ModalHeader>
       <ModalBody>
