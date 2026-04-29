@@ -4,12 +4,19 @@ import { ModalHeader, ModalBody, ModalFooter } from "./Modal.styled";
 import Button from "../Button/Button";
 import { GameContext } from "../../contexts/GameContext";
 import { ModalContext } from "../../contexts/ModalContext";
+import { SoundEffectsContext } from "../../contexts/SoundEffectsContext";
+import { useNavigate } from "react-router-dom";
 
 const RoundOverModal = () => {
-  const { resetBoard, game, roundComplete } = useContext(GameContext);
+  const { resetBoard, game, roundComplete, restartGame } =
+    useContext(GameContext);
   const { handleModal } = useContext(ModalContext);
+  const { clickSfx } = useContext(SoundEffectsContext);
+
+  const navigate = useNavigate();
 
   const handleContinue = () => {
+    clickSfx.play();
     roundComplete();
     resetBoard();
     handleModal();
@@ -37,7 +44,17 @@ const RoundOverModal = () => {
         <Button color="#f9c811" onClick={handleContinue}>
           Continue
         </Button>
-        <Button color="#8437f9">Restart</Button>
+        <Button
+          color="#8437f9"
+          onClick={() => {
+            clickSfx.play();
+            restartGame();
+            handleModal();
+            navigate("/");
+          }}
+        >
+          Restart
+        </Button>
       </ModalFooter>
     </>
   );

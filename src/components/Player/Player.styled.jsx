@@ -18,7 +18,7 @@ export const PlayerWrapper = styled.div`
 
 export const AvatarWrapper = styled.div`
   filter: ${(props) =>
-    props.$isPlayerActive ? "grayscale(0%)" : "grayscale(90%)"};
+    props.$isPlayerActive ? "grayscale(0%)" : "grayscale(100%)"};
   transition: filter 0.3s ease-in-out;
 
   & > div { 

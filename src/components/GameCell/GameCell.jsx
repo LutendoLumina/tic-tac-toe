@@ -9,16 +9,24 @@ import OIconOutlined from "../../assets/o-icon-outlined.svg";
 import BlankIconOutlined from "../../assets/blank-outlined.svg";
 import { ModalContext } from "../../contexts/ModalContext.jsx";
 import RoundOverModal from "../Modal/RoundOverModal.jsx";
+import { SoundEffectsContext } from "../../contexts/SoundEffectsContext.jsx";
 
 const GameCell = ({ cellItem, index }) => {
   const { updateBoard, game, roundComplete } = useContext(GameContext);
+  const { clickSfx, drawSfx, winSfx } = useContext(SoundEffectsContext);
   const { handleModal } = useContext(ModalContext);
 
   const cellClickHandler = () => {
+    clickSfx.play();
     updateBoard(index);
 
     const result = checkForWinner(game.board);
     if (result) {
+      if (result === "draw") {
+        drawSfx.play(); 
+      } else {
+        winSfx.play();
+      }
       roundComplete(result);
       handleModal(<RoundOverModal />);
     }
