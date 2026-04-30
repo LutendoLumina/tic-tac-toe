@@ -21,6 +21,7 @@ export const ModalContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  background-color: ${(props) => props.theme.modal.background};
 
   ${(props) => props.theme.media.mobile`
     min-width: 200px;

@@ -1,8 +1,6 @@
 import { css } from "styled-components";
 
 export const lightTheme = {
-
-
   // Colors object (for your Title component and others)
   colors: {
     primary: "#ffffff",
@@ -21,18 +19,22 @@ export const lightTheme = {
 
   // Background Colors
   background: {
-    primary: "#ffffff",
+    primary: "#f5fcdc",
     secondary: "#f8f9fa",
     tertiary: "#e9ecef",
   },
 
-  button : {
+  button: {
     primary: "#1e1e1e",
     secondary: "#2d2d2d",
   },
 
   cell: {
     background: "#2d2d2d",
+  },
+
+  modal: {
+    background: "#f5fcdc",
   },
 
   // Text Colors
@@ -146,7 +148,6 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-
   // Colors object
   colors: {
     primary: "#1e1e1e",
@@ -163,8 +164,12 @@ export const darkTheme = {
     textLight: "#e9ecef",
   },
 
-    cell: {
+  cell: {
     background: "#d9d9d9",
+  },
+
+  modal: {
+    background: "#2d2d2d",
   },
 
   // Background Colors
@@ -181,7 +186,7 @@ export const darkTheme = {
     light: "#e9ecef",
   },
 
-   button : {
+  button: {
     primary: "#f8f9fa",
     secondary: "#adb5bd",
   },

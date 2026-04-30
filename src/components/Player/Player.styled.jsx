@@ -29,8 +29,8 @@ export const AvatarWrapper = styled.div`
 
   ${(props) => props.theme.media.mobile`
     & > div {
-      width: 4rem !important;
-      height: 4rem !important;
+      width: 4rem;
+      height: 4rem;
     }
   `}
 `;

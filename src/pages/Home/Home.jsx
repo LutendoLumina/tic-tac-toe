@@ -10,8 +10,8 @@ const Home = () => {
 
   return (
     <Container $columnBased>
-      <Title $isDarkMode>TicTacToe</Title>
-      <SubTitle>Play with your friends, higher score wins</SubTitle>
+      <Title $primary $isDarkMode>TicTacToe</Title>
+      <SubTitle $primary>Play with your friends, higher score wins</SubTitle>
       <Button
         onClick={() => {
           clickSfx.play();

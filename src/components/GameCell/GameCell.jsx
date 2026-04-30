@@ -11,7 +11,7 @@ import { ModalContext } from "../../contexts/ModalContext.jsx";
 import RoundOverModal from "../Modal/RoundOverModal.jsx";
 import { SoundEffectsContext } from "../../contexts/SoundEffectsContext.jsx";
 
-const GameCell = ({ cellItem, index }) => {
+const GameCell = ({ cellItem, index, isWinningCell }) => {
   const { updateBoard, game, roundComplete } = useContext(GameContext);
   const { clickSfx, drawSfx, winSfx } = useContext(SoundEffectsContext);
   const { handleModal } = useContext(ModalContext);
@@ -21,26 +21,30 @@ const GameCell = ({ cellItem, index }) => {
     updateBoard(index);
 
     const result = checkForWinner(game.board);
+
     if (result) {
       if (result === "draw") {
-        drawSfx.play(); 
+        drawSfx.play();
       } else {
         winSfx.play();
       }
       roundComplete(result);
-      handleModal(<RoundOverModal />);
+
+      setTimeout(() => {
+        handleModal(<RoundOverModal />);
+      }, 1500);
     }
   };
 
   if (cellItem === "x") {
     return (
-      <CellStyle>
+      <CellStyle $isWinningCell={isWinningCell ?? false}>
         <img src={IconX} className="markedItem" alt="X Icon" />
       </CellStyle>
     );
   } else if (cellItem === "o") {
     return (
-      <CellStyle>
+      <CellStyle $isWinningCell={isWinningCell ?? false}>
         <img src={IconO} className="markedItem" alt="Y Icon" />
       </CellStyle>
     );

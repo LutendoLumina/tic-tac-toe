@@ -14,7 +14,7 @@ const Player = ({ player, isPlayerActive }) => {
       <Text>
         {player.name} ({player.choice.toUpperCase()})
       </Text>
-      <SubTitle>{player.score}</SubTitle>
+      <SubTitle $primary>{player.score}</SubTitle>
     </PlayerWrapper>
   );
 };
