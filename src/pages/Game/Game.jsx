@@ -1,33 +1,32 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Container } from "../../styles/General.styled";
 import { GameBoardStyle } from "./Game.styled";
 import GameCell from "../../components/GameCell/GameCell";
-import { GameContext } from "../../contexts/GameContext";
+import { useGame } from "../../hooks/useGame";
 import Player from "../../components/Player/Player";
 
 const Game = () => {
-  const { game } = useContext(GameContext);
+  const { board, currentPlayer, winningCombo, player1, player2 } = useGame();
 
   return (
     <Container>
       <Player
-        player={game.player1}
-        isPlayerActive={game.player1.choice === game.turn}
+        player={player1}
+        isPlayerActive={player1.choice === currentPlayer}
       />
       <GameBoardStyle>
-        {game.board.map((item, index) => (
+        {board.map((item, index) => (
           <GameCell
             key={index}
             cellItem={item}
             index={index}
-            isWinningCell={game.winningCombo?.includes(index)}
+            isWinningCell={winningCombo?.includes(index)}
           />
         ))}
-        ;
       </GameBoardStyle>
       <Player
-        player={game.player2}
-        isPlayerActive={game.player2.choice === game.turn}
+        player={player2}
+        isPlayerActive={player2.choice === currentPlayer}
       />
     </Container>
   );

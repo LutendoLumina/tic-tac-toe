@@ -1,125 +1,30 @@
-import { useState, createContext } from "react";
-import Avatar, { genConfig } from "react-nice-avatar";
+import { createContext, useReducer } from "react";
+import {
+  ACTIONS,
+  createInitialState,
+  gameReducer,
+} from "../utils/GameUtils/gameReducer.js";
 
-export const GameContext = createContext({});
+export const GameContext = createContext(null);
 
-export const GameContextProvider = (props) => {
-  const [game, setGame] = useState({
-    board: [null, null, null, null, null, null, null, null, null],
-    player1: {
-      choice: "x",
-      name: "Player1",
-      score: 0,
-      color: "#8437f9",
-      avatarConfig: genConfig(),
-    },
-    player2: {
-      choice: "o",
-      name: "Player2",
-      score: 0,
-      color: "#f9c811",
-      avatarConfig: genConfig(),
-    },
-    turn: "x",
-    roundWinner: "",
-  });
+/**
+ * Provides game state (useReducer) and dispatch to the tree.
+ */
+export const GameProvider = ({ children }) => {
+  const [gameState, dispatch] = useReducer(
+    gameReducer,
+    undefined,
+    createInitialState,
+  );
 
-  const updateBoard = (index) => {
-    let updateBoard = game.board;
-    updateBoard[index] = game.turn;
-    setGame({
-      ...game,
-      board: updateBoard,
-      turn: game.turn === "x" ? "o" : "x",
-    });
-  };
-
-  const resetBoard = () => {
-    setGame({
-      ...game,
-      board: [null, null, null, null, null, null, null, null, null],
-      turn: "x",
-    });
-  };
-
-  const restartGame = () => {
-    setGame({
-      board: [null, null, null, null, null, null, null, null, null],
-      player1: {
-        choice: "x",
-        name: "Player1",
-        score: 0,
-        color: "#8437f9",
-        avatarConfig: genConfig(),
-      },
-      player2: {
-        choice: "o",
-        name: "Player2",
-        score: 0,
-        color: "#f9c811",
-        avatarConfig: genConfig(),
-      },
-      turn: "x",
-      roundWinner: "",
-      winningCombo: [0, 1, 2, 3, 4, 5, , 6, 7, 8],
-    });
-  };
-
-  const toggleChoice = (choice) => (choice === "x" ? "o" : "x");
-
-  const switchTurn = () => {
-    setGame((prevGame) => ({
-      ...prevGame,
-      player1: {
-        ...prevGame.player1,
-        choice: toggleChoice(game.player1.choice),
-      },
-      player2: {
-        ...prevGame.player2,
-        choice: toggleChoice(game.player2.choice),
-      },
-      turn: "x",
-    }));
-  };
-
-  const updateScore = (winner, result) => {
-    // winner =  player1, player2, draw
-
-    if (winner === "draw") {
-      setGame((prevGame) => ({
-        ...prevGame,
-        player1: { ...prevGame.player1, score: prevGame.player1.score + 0.5 },
-        player2: { ...prevGame.player2, score: prevGame.player2.score + 0.5 },
-        roundWinner: "",
-        winningCombo: result,
-      }));
-    } else {
-      setGame((prevGame) => ({
-        ...prevGame,
-        [winner]: { ...prevGame[winner], score: prevGame[winner].score + 1 },
-        roundWinner: prevGame[winner],
-        winningCombo: result,
-      }));
-    }
-  };
-
-  const roundComplete = (result) => {
-    if (game.turn === game.player1.choice && result !== "draw") {
-      updateScore("player1", result);
-    } else if (game.turn === game.player2.choice && result !== "draw") {
-      updateScore("player2", result);
-    } else {
-      console.log("DRAW");
-      updateScore("draw", result);
-    }
-    switchTurn();
-  };
+  const value = { gameState, dispatch, ACTIONS };
 
   return (
-    <GameContext.Provider
-      value={{ game, updateBoard, resetBoard, roundComplete, restartGame }}
-    >
-      {props.children}
-    </GameContext.Provider>
+    <GameContext.Provider value={value}>{children}</GameContext.Provider>
   );
 };
+
+/** @deprecated Use GameProvider — kept for existing imports */
+export const GameContextProvider = GameProvider;
+
+export { useGame } from "../hooks/useGame";
