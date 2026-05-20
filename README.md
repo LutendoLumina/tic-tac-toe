@@ -1,20 +1,17 @@
 # TicTacToe Game 🎮
 
-A modern, interactive Tic Tac Toe game built with React featuring multiplayer gameplay, sound effects, music, theme switching, beautiful UI/UX, and centralized state management with `useReducer`.
+A modern, interactive Tic Tac Toe game built with React featuring multiplayer gameplay, sound effects, music, theme switching and beautiful UI/UX.
 
-![React](https://img.shields.io/badge/React-18.0-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Status-Active-success)
+### Live Demo
 
-## 📸 Screenshots
-
-*(Add screenshots of your game here)*
+-  [Live Demo](https://tic-tac-toe-lulu.netlify.app)
+-  [GitHub Repository](https://github.com/YourUsername/tic-tac-toe)
 
 ---
 
-## ✨ Features
+## Features
 
-### 🎯 Core Gameplay
+### Core Gameplay
 
 - **Two-Player Mode**: Play against a friend on the same device
 - **Score Tracking**: Keep track of wins, losses, and draws across multiple rounds
@@ -23,7 +20,7 @@ A modern, interactive Tic Tac Toe game built with React featuring multiplayer ga
 - **Draw Detection**: Game automatically detects when all cells are filled with no winner
 - **Win Detection**: Detects wins in all directions - horizontal, vertical, and diagonal
 
-### 🎨 User Interface
+### User Interface
 
 - **Responsive Design**: Fully responsive on mobile, tablet, and desktop devices
 - **Dark/Light Theme**: Toggle between dark and light themes seamlessly
@@ -32,7 +29,7 @@ A modern, interactive Tic Tac Toe game built with React featuring multiplayer ga
 - **Smooth Animations**: Transitions and effects for an enhanced user experience
 - **Intuitive Controls**: Simple, clean interface easy for any user to navigate
 
-### 🔊 Audio Features
+### Audio Features
 
 **Sound Effects:**
 - Click sound when making a move
@@ -42,17 +39,24 @@ A modern, interactive Tic Tac Toe game built with React featuring multiplayer ga
 
 **Background Music:**
 - Multiple upbeat music tracks that can be shuffled
-- Upbeat Synth Pop
-- Chill Lo-Fi
-- Epic Orchestral Theme
-- Retro 8-Bit Style
 - Play/Pause Controls: Control music playback
 - Shuffle Feature: Randomly select from multiple background tracks
 - Volume Control: Adjustable music volume
 
+## Phase 1: State Management Refactor (Completed)
+- **Centralized Architecture**: Migrated scattered `useState` configurations into a unified `useReducer` pattern in `gameReducer.js` to ensure a single source of truth.
+- **Custom React Hook**: Created the `useGame.js` hook to abstract operational dispatch triggers (`MAKE_MOVE`, `UPDATE_SCORES`, `RESET_BOARD`), cleanly decoupling core game logic from UI render blocks.
+- **Round Score Persistence**: Configured decoupled match loops so that resetting the grid board clears the active grid fields while successfully persisting running player score values.
+
+## Phase 2: Player Name Input & AI Integration (Completed)
+- **Dynamic Name Capture**: Implemented an automated portal configuration tracking custom string inputs for Player 1 directly inside a modular form view.
+- **Context Modal Rendering**: Leveraged `ModalContext` and `createPortal` matching existing design frameworks (`ModalHeader`, `ModalBody`, `ModalFooter`) to manage entry flows without breaking structural layout patterns.
+- **Contextual Data Mapping**: Solved the rendering runtime bug where the game evaluation view displayed `undefined` when announcing winners. End-of-round declarations now dynamically read assigned state string values.
+- **AI Mode Hookup**: Integrated a background state switch engine (`gameMode: "pvc"`) mapping automated turn cycles seamlessly into the newly refactored reducer state model.
+
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 18** - UI library
@@ -71,7 +75,7 @@ A modern, interactive Tic Tac Toe game built with React featuring multiplayer ga
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -144,7 +148,7 @@ src/
 
 ---
 
-## 🧠 State Management
+## State Management
 
 This project uses **React's `useReducer` Hook** for centralized game state management, ensuring clean, maintainable, and scalable code.
 
@@ -165,96 +169,9 @@ Instead of scattered `useState` calls across components, all game state is manag
 3. **State updates propagate** → Components re-render with new state
 4. **No side effects** → Reducer is pure (no API calls, no async logic)
 
-### Action Types
-
-The following actions manage all game state changes:
-
-| Action | Purpose | Payload |
-|--------|---------|---------|
-| `MAKE_MOVE` | Place a mark on the board | `{ index, winner, winningCombo }` |
-| `RESET_BOARD` | Clear board for new round (keep scores) | - |
-| `UPDATE_SCORES` | Increment winner's score | `{ winnerChoice: 'x' \| 'o' }` |
-| `RESET_SCORES` | Reset everything including scores | - |
-| `SET_GAME_MODE` | Switch PvP/PvC mode | `'pvp' \| 'pvc'` |
-| `SET_PLAYER_NAMES` | Update player names | `{ p1, p2 }` |
-
-### State Shape
-
-```javascript
-{
-  board: [null, 'x', 'o', ...],           // 9-cell array
-  currentPlayer: 'x' | 'o',               // Whose turn
-  winner: 'x' | 'o' | null,              // Win state
-  winningCombo: [0, 1, 2] | null,        // Winning cells for highlighting
-  draw: false,                            // Draw state
-  gameMode: 'pvp' | 'pvc',               // Game mode
-  player1: {                              // Player 1 data
-    name: 'Player 1',
-    choice: 'x',
-    score: 0,
-    avatarConfig: {}
-  },
-  player2: {                              // Player 2 data
-    name: 'Player 2',
-    choice: 'o',
-    score: 0,
-    avatarConfig: {}
-  }
-}
-```
-
-### Score Update Timing
-
-**Scores update IMMEDIATELY when a win/draw is detected** in the `MAKE_MOVE` action, not when the Continue button is clicked. This provides instant feedback to users.
-
-**Flow:**
-1. Player completes 3 in a row
-2. `MAKE_MOVE` action is dispatched
-3. Reducer detects winner and **increments score immediately**
-4. Modal appears showing updated scores
-5. User sees "Player 1: 1" (score already incremented)
-6. User clicks Continue
-7. Continue calls `RESET_BOARD` (only clears board, keeps score)
-8. Next game starts with scores at "Player 1: 1, Player 2: 0"
-9. Scores accumulate as more rounds are played
-
-### Usage in Components
-
-Components use the `useGame()` custom hook to access state and dispatch actions:
-
-```javascript
-import { useGame } from '../../hooks/useGame'
-
-const GameCell = ({ cellItem, index }) => {
-  const { board, winner, makeMove } = useGame()
-  
-  const handleClick = () => {
-    if (cellItem || winner) return
-    
-    // Dispatch MAKE_MOVE action
-    makeMove(index, detectedWinner, winningCombo)
-  }
-  
-  return <div onClick={handleClick}>{cellItem}</div>
-}
-```
-
-**Available via useGame():**
-- **State:** `board`, `currentPlayer`, `winner`, `winningCombo`, `draw`, `gameMode`, `player1`, `player2`
-- **Actions:** `makeMove()`, `resetBoard()`, `resetScores()`, `setGameMode()`, `setPlayerNames()`
-
-### Benefits
-
-✅ **Single Source of Truth** - All game state in one place  
-✅ **Predictable Updates** - Clear action types and state transitions  
-✅ **Easy Testing** - Pure reducer function with no side effects  
-✅ **Scalable** - Easy to add new features (AI, timers, etc.)  
-✅ **Maintainable** - No scattered setState calls  
-✅ **No Bugs** - State mutations prevented through immutability  
-
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Node.js (v14 or higher)
@@ -280,14 +197,6 @@ npm run dev
 ```
 
 The application will open automatically at `http://localhost:5173` (or your configured port).
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-This creates an optimized production build in the `dist/` directory.
 
 ---
 
@@ -322,46 +231,7 @@ This creates an optimized production build in the `dist/` directory.
 
 ---
 
-## 🎯 Game Rules
-
-1. **Grid**: The game is played on a 3x3 grid (9 cells total)
-2. **Turns**: Players alternate turns - X goes first, then O
-3. **Placement**: Click on an empty cell to place your mark
-4. **No Overwriting**: Cannot place a mark on an already filled cell
-5. **Winning**: Get 3 marks in a row to win
-6. **Row Types**: Can win with horizontal, vertical, or diagonal rows
-7. **Draw**: If all 9 cells are filled with no winner, the game is a draw
-8. **Score Tracking**: Scores are tracked and displayed for each player
-9. **Multiple Rounds**: Play as many rounds as you want - scores accumulate
-
----
-
-## ⌨️ Keyboard & Mouse Controls
-
-| Action | Control |
-|--------|---------|
-| Make Move | Click on empty cell |
-| Toggle Theme | Click sun/moon icon in header |
-| Play/Pause Music | Click play/pause button |
-| Shuffle Music | Click shuffle button |
-| Continue Round | Click Continue button in modal |
-| Restart Game | Click Restart button |
-| Adjust Volume | Drag volume slider |
-
----
-
-## 🌐 Browser Compatibility
-
-Tested and working on:
-- ✅ Chrome (Latest)
-- ✅ Firefox (Latest)
-- ✅ Safari (Latest)
-- ✅ Edge (Latest)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
----
-
-## 📱 Responsive Breakpoints
+## Responsive Breakpoints
 
 | Device | Width | Optimization |
 |--------|-------|--------------|
@@ -370,151 +240,9 @@ Tested and working on:
 | Desktop | 769px+ | Full features |
 
 The game adapts seamlessly across all screen sizes.
-
 ---
 
-## ⚡ Performance
-
-- ✅ Optimized React rendering with proper key usage
-- ✅ Memoization for sound effects to prevent unnecessary re-renders
-- ✅ Lazy loading of routes with React Router
-- ✅ Efficient state management with Context API and useReducer
-- ✅ CSS-in-JS with Styled Components for dynamic styling
-- ✅ Fast page loads and smooth interactions
-
----
-
-## ♿ Accessibility
-
-- ✅ Semantic HTML elements for better screen reader support
-- ✅ Keyboard navigation support for all interactive elements
-- ✅ Clear visual feedback for all user interactions
-- ✅ High contrast text for improved readability
-- ✅ Descriptive alt text for images and icons
-- ✅ ARIA labels for accessibility
-
----
-
-## 🎨 Customization
-
-### Change Player Names
-
-Edit the initial state in `src/utils/GameUtils/gameReducer.js`:
-
-```javascript
-player1: {
-  name: "Your Name",  // Change here
-  choice: "x",
-  score: 0,
-}
-player2: {
-  name: "Friend's Name",  // Change here
-  choice: "o",
-  score: 0,
-}
-```
-
-### Add Custom Music Tracks
-
-1. Add your audio file to `src/assets/sounds/`
-2. Import in `src/utils/MusicUtils/playlist.js`:
-
-```javascript
-import newTrack from "../../assets/sounds/your-track.wav"
-const playList = [upbeatSynth, chillLofi, epicTheme, retro8bit, newTrack]
-```
-
-### Customize Theme Colors
-
-Edit `src/styles/theme.jsx`:
-
-```javascript
-const lightTheme = {
-  colors: {
-    primary: "#your-color",
-    success: "#your-color",
-    background: "#your-color",
-    // ... other colors
-  }
-}
-```
-
-### Adjust Winning Cell Highlight
-
-Modify highlight color in `src/components/GameCell/GameCell.styled.jsx`:
-
-```javascript
-const CellStyle = styled.div`
-  ${props => props.$isWinningCell && css`
-    background: #your-highlight-color;
-  `}
-`
-```
-
----
-
-## 🚀 Deployment
-
-### Deploy to Netlify
-
-1. Push your code to GitHub
-2. Go to [Netlify](https://netlify.com)
-3. Click "New site from Git"
-4. Select your GitHub repository
-5. Set build command to `npm run build`
-6. Set publish directory to `dist`
-7. Click "Deploy"
-
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Go to [Vercel](https://vercel.com)
-3. Click "New Project"
-4. Import your GitHub repository
-5. Vercel auto-detects React and Vite settings
-6. Click "Deploy"
-
-### Live Demo
-
-*(Add your live demo URL here)*
-- 🌐 [Live Demo](https://your-domain.com)
-- 📝 [GitHub Repository](https://github.com/YourUsername/tic-tac-toe)
-
----
-
-## 🔧 Troubleshooting
-
-### Issue: Audio not playing
-**Solution:**
-- Check browser permissions for audio
-- Ensure sound files are in `src/assets/sounds/`
-- Check browser console for errors
-- Try a different browser
-
-### Issue: Avatars not displaying
-**Solution:**
-- Verify `react-nice-avatar` is installed
-- Check that avatar config is properly generated
-- Clear browser cache
-- Restart development server
-
-### Issue: Theme not changing
-**Solution:**
-- Ensure ThemeProvider wraps the app
-- Check that theme objects are properly defined
-- Verify CSS variables are supported in browser
-- Check browser console for styling errors
-
-### Issue: Game state not updating
-**Solution:**
-- Check that GameProvider wraps the app
-- Verify useGame() is used in components
-- Check browser console for context errors
-- Ensure gameReducer is properly imported
-
----
-
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Here's how to contribute:
 
@@ -533,87 +261,10 @@ Please ensure:
 
 ---
 
-## 📝 License
-
-This project is open source and available under the **MIT License**.
-
-See the [LICENSE](LICENSE) file for more details.
-
----
-
-## 👨‍💻 Author
+## Author
 
 **Lutendo Matshidze**
 
 Created as a fun, educational two-player game project demonstrating modern React practices and delightful user experience design.
 
 - GitHub: [@LutendoLumina](https://github.com/LutendoLumina)
-- Email: your-email@example.com
-
----
-
-## 🎓 Learning Outcomes
-
-This project demonstrates:
-
-- ✅ React hooks (useState, useContext, useReducer, useEffect)
-- ✅ Component composition and reusability
-- ✅ CSS-in-JS with Styled Components
-- ✅ State management with useReducer
-- ✅ React Context API for global state
-- ✅ Custom hooks for code organization
-- ✅ React Router for navigation
-- ✅ Audio handling in React
-- ✅ Responsive design principles
-- ✅ Git and version control
-- ✅ Professional code documentation
-
----
-
-## 🗺️ Roadmap
-
-### Completed ✅
-- [x] Base game with win/draw detection
-- [x] Two-player gameplay
-- [x] Score tracking
-- [x] Theme switching
-- [x] Sound effects and music
-- [x] Player avatars
-- [x] useReducer state management
-- [x] Mobile responsive design
-
-### In Progress 🔄
-- [ ] Player name input
-- [ ] AI opponent (easy mode)
-- [ ] Undo moves feature
-- [ ] Move history
-
-### Planned 📋
-- [ ] AI opponent (hard mode with minimax)
-- [ ] Online multiplayer
-- [ ] Leaderboard system
-- [ ] Game statistics
-- [ ] Custom avatar uploads
-- [ ] Different board sizes (4x4, 5x5)
-- [ ] Time limit per move
-- [ ] Replay functionality
-
----
-
-## 📞 Support
-
-Have questions or found a bug? 
-
-1. Check the [Troubleshooting](#-troubleshooting) section
-2. Search [existing issues](https://github.com/YourUsername/tic-tac-toe/issues)
-3. Create a [new issue](https://github.com/YourUsername/tic-tac-toe/issues/new)
-
----
-
-## 🎉 Enjoy the Game!
-
-Thank you for playing! We hope you enjoy this modern take on the classic Tic Tac Toe game. Have fun playing with your friends! 🏆
-
----
-
-**Made with ❤️ by Lutendo Matshidze**
