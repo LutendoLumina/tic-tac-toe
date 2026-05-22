@@ -22,12 +22,12 @@ export const CellStyle = styled.button`
   justify-content: center;
 
   .markedItem,
-  // .outlineIcon {
-  //   width: 70%;
-  //   height: 70%;
-  //   object-fit: contain;
-  //   object-position: center;
-  // }
+  .outlineIcon {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    object-position: center;
+  }
 
   ${(props) => props.theme.media.mobile`
     border-radius: 0.75rem;
