@@ -217,14 +217,6 @@ npm run dev
 
 Open the URL shown in the terminal (typically `http://localhost:5173`).
 
-### Other scripts
-
-```bash
-npm run build    # Production build
-npm run preview  # Preview production build
-npm run lint     # ESLint
-```
-
 ---
 
 ## How to play
@@ -275,7 +267,7 @@ The root layout uses a flex shell (`100vh`, `overflow: hidden`) so the music pla
 
 ## Development notes
 
-This project was built as a **ZAIO / university-style assignment** focused on:
+This project was built focused on:
 
 - Centralized `useReducer` state instead of scattered `useState`
 - Pure helper functions in `gameHelpers.js` and a thin reducer
@@ -305,7 +297,4 @@ Please keep the reducer pure, put side effects (storage, audio, navigation) in c
 ## Author
 
 **Lutendo Matshidze**
-
-- GitHub: [@LutendoLumina](https://github.com/LutendoLumina)
-
 Built to practice modern React patterns—context, reducers, hooks, and polished UI/UX.
