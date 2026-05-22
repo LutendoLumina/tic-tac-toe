@@ -1,6 +1,6 @@
 # TicTacToe Game
 
-A modern Tic Tac Toe app built with React. Play **against the computer** on one device, with score tracking, sound effects, background music, theme switching, and a responsive layout.
+A modern Tic Tac Toe app built with React. Play **against the AI** on one device, with score tracking, sound effects, background music, theme switching, and a responsive layout.
 
 ### Links
 
