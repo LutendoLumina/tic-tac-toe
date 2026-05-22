@@ -8,6 +8,14 @@ export const GlobalStyle = createGlobalStyle`
     font-family: "Poppins", sans-serif;
 }
 
+html,
+body,
+#root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
 body {
     background-color: ${(props) => props.theme.background.primary};
 }

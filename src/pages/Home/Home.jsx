@@ -5,15 +5,35 @@ import Button from "../../components/Button/Button";
 import { SoundEffectsContext } from "../../contexts/SoundEffectsContext";
 import { ModalContext } from "../../contexts/ModalContext";
 import PlayerNamesModal from "../../components/Modal/PlayerNamesModal";
+import PlaySessionModal from "../../components/Modal/PlaySessionModal";
+import { useGame } from "../../hooks/useGame";
+import { hasActiveSession } from "../../utils/GameUtils/hasActiveSession";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { hoverSfx, clickSfx } = useContext(SoundEffectsContext);
+  const { clickSfx } = useContext(SoundEffectsContext);
   const { handleModal } = useContext(ModalContext);
+  const { board, player1, player2, gameMode, winner, draw } = useGame();
+
+  const goToGame = () => navigate("/game-on");
 
   const handlePlayNow = () => {
     clickSfx.play();
-    handleModal(<PlayerNamesModal onFormSubmit={() => navigate("/game-on")} />);
+
+    const sessionActive = hasActiveSession({
+      board,
+      player1,
+      player2,
+      gameMode,
+      winner,
+      draw,
+    });
+
+    if (sessionActive) {
+      handleModal(<PlaySessionModal />);
+    } else {
+      handleModal(<PlayerNamesModal onFormSubmit={goToGame} />);
+    }
   };
 
   return (
@@ -21,7 +41,7 @@ const Home = () => {
       <Title $primary $isDarkMode>
         TicTacToe
       </Title>
-      <SubTitle $primary>Play with your friends, higher score wins</SubTitle>
+      <SubTitle $primary>Challenge the computer — highest score wins</SubTitle>
       <Button onClick={handlePlayNow}>Play Now</Button>
     </Container>
   );

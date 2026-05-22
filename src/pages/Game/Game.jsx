@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import { Container } from "../../styles/General.styled";
-import { GameBoardStyle } from "./Game.styled";
+import { GameBoardStyle, MainGameLayout } from "./Game.styled";
 import GameCell from "../../components/GameCell/GameCell";
 import { useGame } from "../../hooks/useGame";
 import Player from "../../components/Player/Player";
@@ -26,8 +26,11 @@ const Game = () => {
   const { handleModal } = useContext(ModalContext);
   const { drawSfx, winSfx } = useContext(SoundEffectsContext);
 
+  const computerChoice = player2.choice;
+
   useEffect(() => {
-    if (gameMode !== "pvc" || currentPlayer !== "o" || winner || draw) return;
+    if (gameMode !== "pvc" || currentPlayer !== computerChoice || winner || draw)
+      return;
 
     const emptyIndices = board
       .map((cell, idx) => (cell === null ? idx : null))
@@ -40,7 +43,7 @@ const Game = () => {
 
     const aiTimeout = setTimeout(() => {
       const tempBoard = [...board];
-      tempBoard[randomIndex] = "o";
+      tempBoard[randomIndex] = computerChoice;
 
       const result = checkForWinner(tempBoard);
 
@@ -51,7 +54,7 @@ const Game = () => {
         // draw handled via reducer after makeMove
       } else if (result) {
         combo = result;
-        detectedWinner = "o";
+        detectedWinner = computerChoice;
       }
 
       makeMove(randomIndex, detectedWinner, combo);
@@ -77,6 +80,7 @@ const Game = () => {
     return () => clearTimeout(aiTimeout);
   }, [
     currentPlayer,
+    computerChoice,
     gameMode,
     board,
     winner,
@@ -89,25 +93,27 @@ const Game = () => {
   ]);
 
   return (
-    <Container>
-      <Player
-        player={player1}
-        isPlayerActive={player1.choice === currentPlayer}
-      />
-      <GameBoardStyle>
-        {board.map((item, index) => (
-          <GameCell
-            key={index}
-            cellItem={item}
-            index={index}
-            isWinningCell={winningCombo?.includes(index)}
-          />
-        ))}
-      </GameBoardStyle>
-      <Player
-        player={player2}
-        isPlayerActive={player2.choice === currentPlayer}
-      />
+    <Container $game>
+      <MainGameLayout>
+        <Player
+          player={player1}
+          isPlayerActive={player1.choice === currentPlayer}
+        />
+        <GameBoardStyle>
+          {board.map((item, index) => (
+            <GameCell
+              key={index}
+              cellItem={item}
+              index={index}
+              isWinningCell={winningCombo?.includes(index)}
+            />
+          ))}
+        </GameBoardStyle>
+        <Player
+          player={player2}
+          isPlayerActive={player2.choice === currentPlayer}
+        />
+      </MainGameLayout>
     </Container>
   );
 };

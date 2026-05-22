@@ -43,12 +43,12 @@ const PlayerNamesModal = ({ onFormSubmit }) => {
       
       <ModalBody>
         <SubTitle style={{ marginBottom: "1.5rem" }}>
-          Prepare to face the AI!
+          New match — prepare to face the AI!
         </SubTitle>
 
         <div style={{ textAlign: "left", marginBottom: "0.5rem" }}>
           <label style={{ display: "block", color: "#333", marginBottom: "0.3rem", fontWeight: "bold" }}>
-            Your Name (X)
+            Your name
           </label>
           <input
             type="text"

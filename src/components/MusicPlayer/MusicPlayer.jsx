@@ -64,7 +64,16 @@ const MusicPlayer = () => {
         src={playList[currentSong].url}
         onEnded={shuffleHandler}
       />
-      <Text>{displaySong}</Text>
+      <Text
+        style={{
+          maxWidth: "12rem",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {displaySong}
+      </Text>
     </MusicPlayerWrapper>
   );
 };

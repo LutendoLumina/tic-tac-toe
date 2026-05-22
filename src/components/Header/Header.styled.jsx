@@ -6,13 +6,24 @@ export const HeaderWrapper = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 10vh;
-  padding: 2rem;
+  flex-shrink: 0;
+  height: auto;
+  min-height: 4rem;
+  padding: 0.75rem 1.5rem;
 
   .logo {
-    height: 4rem;
+    height: 3rem;
     cursor: pointer;
   }
+
+  ${(props) => props.theme.media.mobile`
+    padding: 0.5rem 1rem;
+    min-height: 3rem;
+
+    .logo {
+      height: 2.25rem;
+    }
+  `}
 `;
 
 export const LightModeIcon = styled(MdLightMode)`

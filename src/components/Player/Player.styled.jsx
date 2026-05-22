@@ -5,13 +5,19 @@ export const PlayerWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 6rem;
+  margin: 0;
+  min-width: 0;
+  flex-shrink: 0;
+
+  ${(props) => props.theme.media.tablet`
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+  `}
 
   ${(props) => props.theme.media.mobile`
-    display: flex;
     flex-direction: row;
-    margin: 0.25rem;
-    gap: 0.5rem;
+    gap: 0.35rem;
     align-items: center;
   `}
 `;
@@ -20,17 +26,42 @@ export const AvatarWrapper = styled.div`
   filter: ${(props) =>
     props.$isPlayerActive ? "grayscale(0%)" : "grayscale(100%)"};
   transition: filter 0.3s ease-in-out;
+  flex-shrink: 0;
+  align-self: center;
+`;
 
-  & > div { 
-    display: flex;
-    width: 8rem; 
-    height: 8rem;
+/**
+ * Square frame for react-nice-avatar.
+ * Only size the library root <motion.div> — do NOT force dimensions on nested SVGs
+ * (that breaks the portrait layout and squashes the face).
+ */
+export const AvatarImage = styled.div`
+  --avatar-size: 100px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  min-width: var(--avatar-size);
+  min-height: var(--avatar-size);
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  line-height: 0;
+
+  /* react-nice-avatar outer wrapper only */
+  & > div {
+    width: var(--avatar-size) !important;
+    height: var(--avatar-size) !important;
+    min-width: var(--avatar-size) !important;
+    min-height: var(--avatar-size) !important;
+    border-radius: 50%;
+    overflow: hidden;
   }
 
+  ${(props) => props.theme.media.tablet`
+    --avatar-size: 80px;
+  `}
+
   ${(props) => props.theme.media.mobile`
-    & > div {
-      width: 4rem;
-      height: 4rem;
-    }
+    --avatar-size: 64px;
   `}
 `;

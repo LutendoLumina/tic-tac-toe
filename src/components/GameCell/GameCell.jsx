@@ -12,13 +12,24 @@ import RoundOverModal from "../Modal/RoundOverModal.jsx";
 import { SoundEffectsContext } from "../../contexts/SoundEffectsContext.jsx";
 
 const GameCell = ({ cellItem, index, isWinningCell }) => {
-  const { board, currentPlayer, winner, draw, makeMove, updateScores } =
-    useGame();
+  const {
+    board,
+    currentPlayer,
+    winner,
+    draw,
+    gameMode,
+    player1,
+    makeMove,
+    updateScores,
+  } = useGame();
   const { clickSfx, drawSfx, winSfx } = useContext(SoundEffectsContext);
   const { handleModal } = useContext(ModalContext);
 
   const cellClickHandler = () => {
     if (cellItem !== null || winner || draw) return;
+
+    // PvC: only the human (player1) may click on their symbol's turn
+    if (gameMode === "pvc" && currentPlayer !== player1.choice) return;
 
     clickSfx.play();
 
