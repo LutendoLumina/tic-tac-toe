@@ -30,11 +30,6 @@ export const AvatarWrapper = styled.div`
   align-self: center;
 `;
 
-/**
- * Square frame for react-nice-avatar.
- * Only size the library root <motion.div> — do NOT force dimensions on nested SVGs
- * (that breaks the portrait layout and squashes the face).
- */
 export const AvatarImage = styled.div`
   --avatar-size: 100px;
   width: var(--avatar-size);

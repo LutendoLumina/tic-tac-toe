@@ -1,10 +1,6 @@
 import { useCallback, useContext } from "react";
 import { GameContext } from "../contexts/GameContext";
 
-/**
- * Access game state and action dispatchers.
- * Must be used inside <GameProvider>.
- */
 export function useGame() {
   const context = useContext(GameContext);
 

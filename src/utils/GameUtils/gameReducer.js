@@ -1,15 +1,7 @@
-/**
- * gameReducer.js
- *
- * Centralized, pure game state management for TicTacToe.
- * All state transitions go through gameReducer — no side effects here.
- */
-
 import { genConfig } from "react-nice-avatar";
+import { applyScoreUpdate, checkWinner, toggleChoice } from "./gameHelpers.js";
+import { loadGameState } from "./gameStorage.js";
 
-// ---------------------------------------------------------------------------
-// Action type constants
-// ---------------------------------------------------------------------------
 export const ACTIONS = {
   MAKE_MOVE: "MAKE_MOVE",
   RESET_BOARD: "RESET_BOARD",
@@ -21,12 +13,7 @@ export const ACTIONS = {
   UNDO_MOVE: "UNDO_MOVE",
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Build a fresh initial state (new avatars on full reset). */
-export const createInitialState = () => ({
+const getDefaultState = () => ({
   board: Array(9).fill(null),
   currentPlayer: "x",
   winner: null,
@@ -50,79 +37,14 @@ export const createInitialState = () => ({
   moveHistory: [],
 });
 
+export const createInitialState = () => loadGameState() ?? getDefaultState();
+
 export const initialState = createInitialState();
 
-const WIN_LINES = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
-
-/**
- * Returns the winning mark ('x' | 'o') and combo indices, or null if no winner.
- */
-export function checkWinner(board) {
-  for (const [a, b, c] of WIN_LINES) {
-    if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-      return { winner: board[a], winningCombo: [a, b, c] };
-    }
-  }
-  return null;
-}
-
-/** True when the board is full and there is no winner. */
-export function checkDraw(board) {
-  return board.every((cell) => cell !== null) && !checkWinner(board);
-}
-
-/** Indices of empty cells (useful for AI / PvC later). */
-export function getEmptyCells(board) {
-  return board
-    .map((cell, index) => (cell === null ? index : null))
-    .filter((index) => index !== null);
-}
-
-const toggleChoice = (choice) => (choice === "x" ? "o" : "x");
-
-/** Apply round result to player scores (immutable). */
-function applyScoreUpdate(player1, player2, winnerChoice) {
-  const p1 = { ...player1 };
-  const p2 = { ...player2 };
-
-  if (winnerChoice === "draw") {
-    p1.score += 0.5;
-    p2.score += 0.5;
-  } else if (winnerChoice === "x") {
-    if (p1.choice === "x") p1.score += 1;
-    else p2.score += 1;
-  } else if (winnerChoice === "o") {
-    if (p1.choice === "o") p1.score += 1;
-    else p2.score += 1;
-  }
-
-  return { player1: p1, player2: p2 };
-}
-
-// ---------------------------------------------------------------------------
-// Reducer
-// ---------------------------------------------------------------------------
-
-/**
- * Pure reducer — (state, action) => newState
- */
 export function gameReducer(state, action) {
   switch (action.type) {
-    /**
-     * MAKE_MOVE — place currentPlayer on index; store win/draw from component.
-     * payload: { index, winner, winningCombo }
-     */
     case ACTIONS.MAKE_MOVE: {
-      const { index, winner, winningCombo } = action.payload;
+      const { index } = action.payload;
 
       if (state.board[index] !== null || state.winner || state.draw) {
         return state;
@@ -131,8 +53,8 @@ export function gameReducer(state, action) {
       const newBoard = [...state.board];
       newBoard[index] = state.currentPlayer;
 
-      const isDraw =
-        !winner && newBoard.every((cell) => cell !== null);
+      const winResult = checkWinner(newBoard);
+      const isDraw = !winResult && newBoard.every((cell) => cell !== null);
 
       const snapshot = {
         board: state.board,
@@ -146,16 +68,13 @@ export function gameReducer(state, action) {
         ...state,
         board: newBoard,
         currentPlayer: state.currentPlayer === "x" ? "o" : "x",
-        winner: winner ?? null,
-        winningCombo: winningCombo ?? null,
+        winner: winResult ? winResult.winner : null,
+        winningCombo: winResult ? winResult.winningCombo : null,
         draw: isDraw,
         moveHistory: [...state.moveHistory, snapshot],
       };
     }
 
-    /**
-     * RESET_BOARD — clear the grid for a new round; keep scores and players.
-     */
     case ACTIONS.RESET_BOARD: {
       return {
         ...state,
@@ -168,10 +87,6 @@ export function gameReducer(state, action) {
       };
     }
 
-    /**
-     * UPDATE_SCORES — increment scores when a round ends (board unchanged).
-     * payload: { winnerChoice } — 'x', 'o', or 'draw'
-     */
     case ACTIONS.UPDATE_SCORES: {
       const { winnerChoice } = action.payload;
       const { player1, player2 } = applyScoreUpdate(
@@ -179,13 +94,9 @@ export function gameReducer(state, action) {
         state.player2,
         winnerChoice,
       );
-
       return { ...state, player1, player2 };
     }
 
-    /**
-     * START_NEXT_ROUND — clear board, swap X/O choices (scores already applied).
-     */
     case ACTIONS.START_NEXT_ROUND: {
       return {
         ...state,
@@ -200,16 +111,20 @@ export function gameReducer(state, action) {
       };
     }
 
-    /**
-     * RESET_SCORES — full game reset (scores, board, fresh avatars).
-     */
     case ACTIONS.RESET_SCORES: {
-      return createInitialState();
+      return {
+        ...state,
+        board: Array(9).fill(null),
+        currentPlayer: "x",
+        winner: null,
+        winningCombo: null,
+        draw: false,
+        moveHistory: [],
+        player1: { ...state.player1, score: 0, choice: "x" },
+        player2: { ...state.player2, score: 0, choice: "o" },
+      };
     }
 
-    /**
-     * SET_GAME_MODE — 'pvp' | 'pvc'
-     */
     case ACTIONS.SET_GAME_MODE: {
       const mode = action.payload;
       return {
@@ -217,14 +132,11 @@ export function gameReducer(state, action) {
         gameMode: mode,
         player2: {
           ...state.player2,
-          name: mode === "pvc" ? "Computer" : "Player2",
+          name: mode === "pvc" ? "Pixel" : "Player2",
         },
       };
     }
 
-    /**
-     * SET_PLAYER_NAMES — payload: { p1, p2 }
-     */
     case ACTIONS.SET_PLAYER_NAMES: {
       const { p1, p2 } = action.payload;
       return {
@@ -234,9 +146,6 @@ export function gameReducer(state, action) {
       };
     }
 
-    /**
-     * UNDO_MOVE — revert to the previous snapshot (optional / future use).
-     */
     case ACTIONS.UNDO_MOVE: {
       if (state.moveHistory.length === 0) return state;
 

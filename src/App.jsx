@@ -1,5 +1,4 @@
 import Router from "./Router";
-import "./App.css";
 import { GlobalStyle } from "./styles/Global.styled";
 import { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "./styles/theme";

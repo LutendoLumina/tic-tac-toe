@@ -1,6 +1,3 @@
-/**
- * True when a PvC match is in progress or has scored rounds to resume.
- */
 export function hasActiveSession({ board, player1, player2, gameMode, winner, draw }) {
   if (gameMode !== "pvc") return false;
 

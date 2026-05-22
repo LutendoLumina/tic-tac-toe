@@ -11,27 +11,21 @@ const PlayerNamesModal = ({ onFormSubmit }) => {
   const { handleModal } = useContext(ModalContext);
   const { clickSfx } = useContext(SoundEffectsContext);
 
-  // Local state to track only the human player's name
   const [p1Name, setP1Name] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     clickSfx.play();
 
-    // Fallback default if the field is left empty
     const finalP1 = p1Name.trim() || "Player 1";
-    const finalP2 = "Computer";
+    const finalP2 = "Pixel";
 
-    // 1. Set the game mode to Player vs Computer in the reducer
     setGameMode("pvc");
 
-    // 2. Save both names to global state
     setPlayerNames(finalP1, finalP2);
 
-    // 3. Close the modal layout
     handleModal();
 
-    // 4. Navigate to the game board page
     if (onFormSubmit) onFormSubmit();
   };
 
@@ -43,7 +37,7 @@ const PlayerNamesModal = ({ onFormSubmit }) => {
       
       <ModalBody>
         <SubTitle style={{ marginBottom: "1.5rem" }}>
-          New match — prepare to face the AI!
+          New match — prepare to face the AI (Pixel)!
         </SubTitle>
 
         <div style={{ textAlign: "left", marginBottom: "0.5rem" }}>

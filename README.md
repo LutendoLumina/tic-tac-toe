@@ -5,7 +5,6 @@ A modern Tic Tac Toe app built with React. Play **against the computer** on one 
 ### Links
 
 - [Live Demo](https://tic-tac-toe-lulu.netlify.app)
-- [GitHub Repository](https://github.com/LutendoLumina/tic-tac-toe)
 
 ---
 
@@ -13,7 +12,8 @@ A modern Tic Tac Toe app built with React. Play **against the computer** on one 
 
 ### Gameplay (Player vs Computer)
 
-- **Single-player vs AI** — Enter your name on **Play Now**, then face a computer opponent that picks random moves.
+- **Single-player vs AI** — Enter your name on **Play Now**, then face **Pixel** (random-move AI).
+- **Session persistence** — Match state is saved to `localStorage` (board, scores, names, symbols, mode). Refreshing the page keeps your PvC session instead of resetting to an unused PvP default.
 - **Session resume** — Returning home (logo) keeps your match in memory; **Play Now** lets you **Continue** or start a **New game** with a fresh name and scores.
 - **Alternating symbols** — After each round, X and O swap between you and the computer so opening turns stay fair across a full match.
 - **Correct turn ownership** — You only place your assigned symbol; the AI places theirs and opens the round when it has X after a swap.
@@ -41,34 +41,25 @@ A modern Tic Tac Toe app built with React. Play **against the computer** on one 
 
 ## Recent updates
 
-Summary of major changes implemented in this version of the project.
+### GameUtils refactor
 
-### State management (`useReducer`)
+- **`gameHelpers.js`** — Pure functions: `checkWinner`, `checkForWinner`, `applyScoreUpdate`, `toggleChoice`, `WIN_LINES`.
+- **`gameReducer.js`** — Reducer and action types only; imports helpers from `gameHelpers.js`.
+- **`gameStorage.js`** — `loadGameState` / `saveGameState` for `localStorage` persistence.
+- **`index.js`** — Barrel file re-exporting helpers, reducer, and session utilities.
+- Removed duplicate `index.jsx` (old `checkForWinner` with debug logs).
 
-- Replaced scattered `useState` game logic with a centralized **`gameReducer`** and **`useGame()`** hook.
-- All board, turn, score, and mode updates go through explicit action types (`MAKE_MOVE`, `UPDATE_SCORES`, `START_NEXT_ROUND`, etc.).
-- Components dispatch actions only; the reducer stays pure (no side effects).
+### Persistence & PvC fixes
 
-### Player vs Computer (PvC)
+- **Refresh no longer drops PvC mode** — Without persistence, a reload reset `gameMode` to `pvp`, which disabled human-only turn guards and let you place the computer’s symbol.
+- **`GameContext`** saves state on every reducer update so names, scores, board, and `gameMode: "pvc"` survive reloads.
 
-- **PvC-only UI** — Every match starts via `PlayerNamesModal` with `gameMode: "pvc"` (no local two-player flow in the interface).
-- **AI turn logic** — The computer moves when `currentPlayer === player2.choice` (not hardcoded to `"o"`), so swapped symbols work correctly after each round.
-- **Human input guard** — In PvC, clicks are ignored unless `currentPlayer === player1.choice`.
-- **Round-end scoring** — `UPDATE_SCORES` runs when a round ends; **Continue** in `RoundOverModal` calls `START_NEXT_ROUND` (clear board + swap choices, scores unchanged).
-- **AI win/draw modal** — Fixed winner detection for the AI using the same `checkForWinner()` return shape as human moves (array or `"draw"`, not `{ winner, line }`).
+### Router layout styles
 
-### Home screen session handling
-
-- Clicking the **logo** navigates home but **does not** clear game state (by design).
-- **Play Now** uses `hasActiveSession()` to detect saved scores, board moves, or an unfinished round.
-- **`PlaySessionModal`** — **Continue** resumes the current match; **New game** runs `resetScores()` then opens the name modal for a clean start.
-
-### Layout and UI polish
-
-- Viewport-locked layout: `Router` app shell + `Container` fills remaining height without vertical scroll.
-- `GameBoardStyle` and responsive cells scale inside a square grid.
-- Music player: `position: fixed; bottom: 20px;` centered, no longer pushing content off-screen.
-- Avatar wrapper sizes only the library root element so nested SVGs are not squashed.
+- App shell styles (`AppLayout`, `MainContent`, `RouteContainer`) moved to **`Router.styled.jsx`**.
+- **`Global.styled.jsx`** — Site-wide reset and body background.
+- **`General.styled.jsx`** — Shared page components (`Container`, `Title`, etc.).
+- **`Router.styled.jsx`** — Flex column shell: header + scroll-free route area (not global tokens).
 
 ---
 
@@ -80,6 +71,7 @@ Summary of major changes implemented in this version of the project.
 | Routing | React Router DOM 7 |
 | Styling | Styled Components (theme + media queries) |
 | State | React Context + `useReducer` (game), Context (theme, modal, sounds) |
+| Persistence | `localStorage` via `gameStorage.js` |
 | Avatars | react-nice-avatar |
 | Icons | react-icons |
 
@@ -93,15 +85,20 @@ Game logic lives in a **pure reducer** — no `useState` for board, turns, score
 
 ```
 Component → useGame() → dispatch(action) → gameReducer → new state → re-render
+                                                              ↓
+                                                    saveGameState (localStorage)
 ```
 
 **Main files**
 
 | File | Role |
 |------|------|
-| `src/utils/GameUtils/gameReducer.js` | Reducer, action constants, helpers (`checkWinner`, `checkDraw`, `getEmptyCells`) |
-| `src/utils/GameUtils/hasActiveSession.js` | Detects whether **Play Now** should offer resume vs new match |
-| `src/contexts/GameContext.jsx` | `GameProvider` + `useReducer` |
+| `src/utils/GameUtils/gameReducer.js` | Reducer and action constants |
+| `src/utils/GameUtils/gameHelpers.js` | Pure game logic (`checkWinner`, `checkForWinner`, scoring, symbol toggle) |
+| `src/utils/GameUtils/gameStorage.js` | Load/save full game state to `localStorage` |
+| `src/utils/GameUtils/hasActiveSession.js` | Whether **Play Now** should offer resume vs new match |
+| `src/utils/GameUtils/index.js` | Barrel exports for GameUtils |
+| `src/contexts/GameContext.jsx` | `GameProvider`, hydration, auto-save on state change |
 | `src/hooks/useGame.jsx` | Public API: state + action helpers |
 
 **Reducer actions**
@@ -110,18 +107,18 @@ Component → useGame() → dispatch(action) → gameReducer → new state → r
 |--------|---------|
 | `MAKE_MOVE` | Place mark, set winner/draw, switch turn |
 | `UPDATE_SCORES` | Apply round result to scores when a round ends |
-| `START_NEXT_ROUND` | Clear board, swap X/O choices (scores already updated) |
+| `START_NEXT_ROUND` | Clear board, swap X/O choices (scores unchanged) |
 | `RESET_BOARD` | Clear board only (scores unchanged) |
-| `RESET_SCORES` | Full reset (board, scores, fresh avatars) |
+| `RESET_SCORES` | Full reset (board, scores, symbols back to X/O defaults) |
 | `SET_GAME_MODE` | Sets `pvc` when starting a match |
 | `SET_PLAYER_NAMES` | Set display names from the entry modal |
 | `UNDO_MOVE` | Revert last move (reserved for future use) |
 
 **Other contexts**
 
-- `ThemeContext` — light / dark mode  
-- `ModalContext` — modal open/close and content  
-- `SoundEffectsContext` — SFX playback  
+- `ThemeContext` — light / dark mode
+- `ModalContext` — modal open/close and content
+- `SoundEffectsContext` — SFX playback
 
 ### Match flow (PvC only)
 
@@ -129,15 +126,15 @@ The app does not expose local two-player mode in the UI. Every new match is **Pl
 
 **Starting from home**
 
-1. **Play Now** → if `hasActiveSession()` is true → `PlaySessionModal` (**Continue** | **New game**).  
+1. **Play Now** → if `hasActiveSession()` is true → `PlaySessionModal` (**Continue** | **New game**).
 2. Otherwise → `PlayerNamesModal` → name + **Start Match** → `gameMode: "pvc"`, navigate to `/game-on`.
 
 **On the board**
 
-1. **Player 1** = human; **Player 2** = Computer.  
-2. `currentPlayer` = mark placed next; `player.choice` = symbol shown beside each name.  
-3. Human clicks only when `currentPlayer === player1.choice`.  
-4. AI runs when `currentPlayer === player2.choice` and places `player2.choice`.  
+1. **Player 1** = human; **Player 2** = Pixel (AI).
+2. `currentPlayer` = mark placed next; `player.choice` = symbol shown beside each name.
+3. Human clicks only when `currentPlayer === player1.choice`.
+4. AI runs when `currentPlayer === player2.choice` and places `player2.choice`.
 5. Round ends → scores update → `RoundOverModal` → **Continue** runs `START_NEXT_ROUND` (swap symbols; AI moves first if it has X).
 
 ### Modals (two “Continue” actions)
@@ -149,7 +146,7 @@ The app does not expose local two-player mode in the UI. Every new match is **Pl
 
 ### Win detection
 
-`checkForWinner()` in `src/utils/GameUtils/index.jsx` returns a winning line array, `"draw"`, or `false`. Used by `GameCell` and the AI before `makeMove` / `updateScores`.
+`checkForWinner(board)` in `gameHelpers.js` returns a winning line array (`[i, j, k]`), `"draw"`, or `false`. Used by `GameCell` and the AI in `Game.jsx` before `makeMove` / `updateScores`. The reducer uses `checkWinner(board)`, which returns `{ winner, winningCombo }` or `null`.
 
 ---
 
@@ -169,7 +166,7 @@ src/
 │   ├── MusicPlayer/
 │   └── Header/                # Logo (home) + theme toggle
 ├── contexts/
-│   ├── GameContext.jsx        # useReducer provider
+│   ├── GameContext.jsx        # useReducer provider + localStorage sync
 │   ├── ModalContext.jsx
 │   ├── ThemeContext.jsx
 │   ├── SoundEffectsContext.jsx
@@ -184,15 +181,18 @@ src/
 │   └── Details/Details.jsx
 ├── utils/
 │   ├── GameUtils/
-│   │   ├── gameReducer.js
+│   │   ├── gameReducer.js     # Reducer + actions
+│   │   ├── gameHelpers.js     # Win/draw/score helpers
+│   │   ├── gameStorage.js     # localStorage load/save
 │   │   ├── hasActiveSession.js
-│   │   └── index.jsx          # checkForWinner
+│   │   └── index.js           # Barrel exports
 │   └── MusicUtils/
 ├── styles/
 │   ├── General.styled.jsx     # Container, typography
-│   ├── Global.styled.jsx
+│   ├── Global.styled.jsx      # Global reset + body
 │   └── theme.jsx
-├── Router.jsx                 # App layout shell (no scroll)
+├── Router.jsx                 # Routes + layout shell
+├── Router.styled.jsx          # AppLayout, MainContent, RouteContainer
 ├── App.jsx
 └── main.jsx
 ```
@@ -203,8 +203,8 @@ src/
 
 ### Prerequisites
 
-- Node.js 18+ recommended  
-- npm or yarn  
+- Node.js 18+ recommended
+- npm or yarn
 
 ### Install and run
 
@@ -231,31 +231,32 @@ npm run lint     # ESLint
 
 ### Start a match
 
-1. Open the app and click **Play Now**.  
-2. If you already have a match in progress (scores, moves on the board, or a finished round), choose:  
-   - **Continue** — Same scores, board state, and names.  
-   - **New game** — Full reset, then enter your name and **Start Match**.  
-3. On a brand-new session, enter your name (defaults to **Player 1** if blank).  
+1. Open the app and click **Play Now**.
+2. If you already have a match in progress (scores, moves on the board, or a finished round), choose:
+   - **Continue** — Same scores, board state, and names.
+   - **New game** — Full reset, then enter your name and **Start Match**.
+3. On a brand-new session, enter your name (defaults to **Player 1** if blank).
 4. Round one: you start as **X**. After each in-game **Continue**, X and O swap; the computer moves first when it holds X.
 
 ### During a round
 
-- Click an empty cell on **your** turn (your label matches the mark you place).  
-- First to three in a row wins; a full board with no winner is a draw.  
+- Click an empty cell on **your** turn (your label matches the mark you place).
+- First to three in a row wins; a full board with no winner is a draw.
 - Scores update when the round ends; the round modal appears after a short delay.
 
 ### After a round (on the board)
 
-- **Continue** — Next round: board clears, symbols swap, scores kept.  
+- **Continue** — Next round: board clears, symbols swap, scores kept.
 - **Restart** — Full reset and return to the home page.
 
 ### Navigation
 
 - **Logo** — Goes home without clearing state; use **Play Now** → **New game** to wipe scores and re-enter your name.
+- **Refresh** — Your PvC session is restored from `localStorage` (board, scores, names, and mode).
 
 ### Extras
 
-- **Theme** — Sun/moon icon in the header.  
+- **Theme** — Sun/moon icon in the header.
 - **Music** — Play, pause, and skip at the bottom of the screen.
 
 ---
@@ -276,24 +277,28 @@ The root layout uses a flex shell (`100vh`, `overflow: hidden`) so the music pla
 
 This project was built as a **ZAIO / university-style assignment** focused on:
 
-- Centralized `useReducer` state instead of scattered `useState`  
-- Pure reducer functions and explicit action types  
-- A custom `useGame()` hook as the only game API for components  
+- Centralized `useReducer` state instead of scattered `useState`
+- Pure helper functions in `gameHelpers.js` and a thin reducer
+- A custom `useGame()` hook as the only game API for components
 
-When extending the app, prefer adding behavior in `gameReducer.js` and exposing it through `useGame()` rather than local component state.
+When extending the app, prefer:
 
-> **Note:** The reducer still defines a `pvp` mode for possible future use, but the current UI only starts games in `pvc` mode.
+1. Adding behavior in `gameHelpers.js` (pure logic) or `gameReducer.js` (state transitions)
+2. Exposing new actions through `useGame()`
+3. Avoiding game-related `useState` in components
+
+> **Note:** The reducer still defines a `pvp` mode for possible future use, but the current UI only starts games in `pvc` mode. Persistence keeps `pvc` active across reloads once a match has started.
 
 ---
 
 ## Contributing
 
-1. Fork the repository  
-2. Create a branch (`git checkout -b feature/your-feature`)  
-3. Commit your changes  
-4. Push and open a Pull Request  
+1. Fork the repository
+2. Create a branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push and open a Pull Request
 
-Please keep the reducer pure, avoid new game-related `useState` in components, and run `npm run lint` before submitting.
+Please keep the reducer pure, put side effects (storage, audio, navigation) in contexts/components, and run `npm run lint` before submitting.
 
 ---
 

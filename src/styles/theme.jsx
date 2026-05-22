@@ -1,7 +1,7 @@
 import { css } from "styled-components";
 
 export const lightTheme = {
-  // Colors object (for your Title component and others)
+    // Colors object
   colors: {
     primary: "#ffffff",
     secondary: "#f8f9fa",

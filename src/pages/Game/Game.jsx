@@ -4,7 +4,7 @@ import { GameBoardStyle, MainGameLayout } from "./Game.styled";
 import GameCell from "../../components/GameCell/GameCell";
 import { useGame } from "../../hooks/useGame";
 import Player from "../../components/Player/Player";
-import { checkForWinner } from "../../utils/GameUtils/index.jsx";
+import { checkForWinner } from "../../utils/GameUtils/gameHelpers.js";
 import { ModalContext } from "../../contexts/ModalContext";
 import { SoundEffectsContext } from "../../contexts/SoundEffectsContext";
 import RoundOverModal from "../../components/Modal/RoundOverModal";

@@ -1,11 +1,9 @@
 import React, { useContext } from "react";
 import { CellStyle } from "./GameCell.styled";
-import { checkForWinner } from "../../utils/GameUtils/index.jsx";
+import { checkForWinner } from "../../utils/GameUtils/gameHelpers.js";
 import { useGame } from "../../hooks/useGame";
 import IconX from "../../assets/x-icon.svg";
-import XIconOutlined from "../../assets/x-icon-outlined.svg";
 import IconO from "../../assets/o-icon.svg";
-import OIconOutlined from "../../assets/o-icon-outlined.svg";
 import BlankIconOutlined from "../../assets/blank-outlined.svg";
 import { ModalContext } from "../../contexts/ModalContext.jsx";
 import RoundOverModal from "../Modal/RoundOverModal.jsx";
@@ -37,12 +35,12 @@ const GameCell = ({ cellItem, index, isWinningCell }) => {
     nextBoard[index] = currentPlayer;
 
     const result = checkForWinner(nextBoard);
-
+    
     let detectedWinner = null;
     let winningCombo = null;
 
     if (result === "draw") {
-      // draw flag is derived inside the reducer
+      // draw flag is derived inside the reducer 
     } else if (result) {
       winningCombo = result;
       detectedWinner = currentPlayer;
